@@ -10,6 +10,8 @@
   },
   "dependencies": {
     "@google/generative-ai": "^0.22.0",
+    "@react-three/drei": "^10.0.2",
+    "@react-three/fiber": "^9.0.4",
     "@splinetool/react-spline": "^4.0.0",
     "@splinetool/runtime": "^1.9.69",
     "bcryptjs": "^3.0.2",
@@ -20,7 +22,9 @@
     "next": "15.1.7",
     "nodemailer": "^6.10.0",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "three": "^0.173.0",
+    "zod": "^3.24.2"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
@@ -29,6 +33,7 @@
     "@types/nodemailer": "^6.4.17",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/three": "^0.173.0",
     "eslint": "^9",
     "eslint-config-next": "15.1.7",
     "postcss": "^8",
