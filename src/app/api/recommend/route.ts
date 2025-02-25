@@ -1,4 +1,3 @@
-
 import connectToDatabase from "@/library/database/db";
 import { getSchemeRecommendation } from "@/library/Gemini/RecommendAI";
 import Scheme from "@/library/modal/SchemeSchema";

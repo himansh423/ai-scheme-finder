@@ -1,6 +1,5 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-
 interface UserData {
   age: string;
   income: string;
