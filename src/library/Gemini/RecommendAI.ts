@@ -58,8 +58,7 @@ export async function getSchemeRecommendation(
         "category": "Scheme Category",
         "eligibility": "Eligibility Criteria",
         "reason": "Why this scheme is suitable for the user.",
-        "Trust-Score": "Give Score based on Scheme in the scale of 1-5",
-        "_id": "Send ID of scheme"
+        "TrustScore": "Give Score based on Scheme in the scale of 1-5",
       }
     ]
   }
