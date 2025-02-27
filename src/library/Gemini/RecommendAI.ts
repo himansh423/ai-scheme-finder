@@ -68,7 +68,7 @@ export async function getSchemeRecommendation(
   Ensure that the response **strictly follows this JSON format** without additional text or explanation.`;
 
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
     const result = await model.generateContent(prompt);
     const response = await result.response;
 

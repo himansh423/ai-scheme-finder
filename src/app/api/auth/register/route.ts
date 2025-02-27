@@ -1,6 +1,6 @@
 import bcrypt from "bcryptjs";
 import { NextResponse } from "next/server";
-import { sendEmail } from "@/library/sendEmail";
+import { sendEmail } from "@/library/sendMail/sendEmail";
 import connectToDatabase from "@/library/database/db";
 import User from "@/library/modal/User";
 
