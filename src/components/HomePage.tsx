@@ -1,28 +1,44 @@
 "use client";
 
-import { Mic, Search } from "lucide-react";
-import Robot3DModel from "./Robot3DModel";
-import ThinkingBrain3DModel from "./ThinkingBrain3DModel";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Bebas_Neue } from "next/font/google";
-import { z } from "zod";
-import { Recommend } from "@/library/zodSchema/getRecommendationForm";
-import axios from "axios";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import type { z } from "zod";
+import axios from "axios";
+import { Mic, Search } from "lucide-react";
+import { Bebas_Neue } from "next/font/google";
+import { GoogleGenerativeAI } from "@google/generative-ai";
+import Robot3DModel from "./Robot3DModel";
+import ThinkingBrain3DModel from "./ThinkingBrain3DModel";
+import { Recommend } from "@/library/zodSchema/getRecommendationForm";
 import { schemeAction } from "@/redux/schemeSlice";
+import { userInputAction } from "@/redux/userInputSlice";
 
-const bebasNeue = Bebas_Neue({ weight: "400" });
+const bebasNeue = Bebas_Neue({ weight: "400", subsets: ["latin"] });
 
 type UserData = z.infer<typeof Recommend>;
+
+declare global {
+  interface Window {
+    SpeechRecognition: typeof SpeechRecognition;
+    webkitSpeechRecognition: typeof SpeechRecognition;
+  }
+}
+
+const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
+const genAI = new GoogleGenerativeAI(apiKey as string);
 
 const HomePage = () => {
   const router = useRouter();
   const dispatch = useDispatch();
+  const [isListening, setIsListening] = useState(false);
+
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<UserData>({
     defaultValues: {
@@ -35,12 +51,74 @@ const HomePage = () => {
     resolver: zodResolver(Recommend),
   });
 
+  useEffect(() => {
+    if (isListening) {
+      startListening();
+    }
+  }, []);
+
+  const startListening = () => {
+    const SpeechRecognition =
+      window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      console.error("Speech recognition is not supported in this browser.");
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = "hi-IN";
+    recognition.continuous = false;
+    recognition.interimResults = false;
+
+    recognition.onresult = async (event: SpeechRecognitionEvent) => {
+      const transcript = event.results[0][0].transcript;
+      await processSpeech(transcript);
+    };
+
+    recognition.onerror = () => {
+      setIsListening(false);
+    };
+
+    recognition.onend = () => {
+      setIsListening(false);
+    };
+    recognition.start();
+  };
+
+  const processSpeech = async (speechText: string) => {
+    try {
+      const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+      const prompt = `Extract user details (age, salary, location, occupation, description) from the given statement:
+      "${speechText}" 
+      Format it in JSON:
+      
+      {"age": "", "salary": "", "location": "", "occupation": "", "description": ""}`;
+
+      const result = await model.generateContent(prompt);
+      const response = await result.response;
+      const jsonText = await response.text();
+      const match = jsonText.match(/\{[\s\S]*\}/);
+      const extractedData = JSON.parse(match ? match[0] : "{}");
+
+      setValue("age", extractedData.age || "");
+      setValue("salary", extractedData.salary || "");
+      setValue("location", extractedData.location || "");
+      setValue("occupation", extractedData.occupation || "");
+      setValue("description", extractedData.description || "");
+
+      handleSubmit(onSubmit)();
+    } catch (error) {
+      console.error("Error processing speech data:", error);
+    }
+  };
+
   const onSubmit = async (data: UserData) => {
     try {
       const response = await axios.post(`/api/recommend`, data);
 
       if (response.data.recommendation) {
         console.log("Recommendations:", response.data.recommendation);
+        dispatch(userInputAction.setInput({ data: data }));
         dispatch(
           schemeAction.setSchemes({
             data: response.data.recommendation.recommended_schemes,
@@ -137,10 +215,11 @@ const HomePage = () => {
         </div>
 
         <div
-          className={`${bebasNeue.className} w-[200px] h-[50px] bg-black text-white shadow-md shadow-[#e5e5e5] flex items-center justify-center absolute inset-0 m-auto z-20 top-64 rounded-lg border-[1px] border-black`}
+          onClick={() => setIsListening(true)}
+          className={`${bebasNeue.className} w-[200px] h-[50px] bg-black text-white shadow-md shadow-[#e5e5e5] flex items-center justify-center absolute inset-0 m-auto z-20 top-64 rounded-lg border-[1px] border-black cursor-pointer`}
         >
           <Mic className="mr-2 h-4 w-4" />
-          <p>Voice</p>
+          <p>{isListening ? "Listening..." : "Voice"}</p>
         </div>
 
         <button
