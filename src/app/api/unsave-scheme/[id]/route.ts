@@ -27,7 +27,10 @@ export async function DELETE(
       );
     }
 
-    await User.updateOne({ _id: userId }, { $pull: { savedScheme: schemeId } });
+    await User.updateOne(
+      { _id: userId },
+      { $pull: { savedSchemes: schemeId } }
+    );
 
     return NextResponse.json({
       success: true,
