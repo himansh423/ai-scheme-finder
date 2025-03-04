@@ -19,7 +19,7 @@ export async function POST(req: Request) {
     const hashedPassword = await bcrypt.hash(password, 12);
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
-    // saving user temporarily with OTP (not yet verified)
+  
     const newUser = new User({
       firstName,
       lastName,
@@ -27,15 +27,14 @@ export async function POST(req: Request) {
       phoneNumber,
       password: hashedPassword,
       otp,
-      isVerified: false // adding a field to track whether the user is verified
+      isVerified: false,
     });
 
     await newUser.save();
 
-    // Send OTP email
     await sendEmail({
       to: email,
-      subject: "OTP from Syntax Saviours",
+      subject: "OTP from Syndicate",
       text: `Your OTP code is ${otp}, use it within 15 minutes.`,
       html: `
         <div style="font-family: Arial, sans-serif; line-height: 1.6;">
@@ -45,19 +44,19 @@ export async function POST(req: Request) {
           <p>If you did not request this OTP, please ignore this email.</p>
           <br>
           <p>Thanks,</p>
-          <p>The Syntax Saviors Team</p>
+          <p>The Syndicate Team</p>
         </div>
       `,
     });
 
-    // Set a timeout to delete the user if OTP is not verified within 2 minutes
+    
     setTimeout(async () => {
       const user = await User.findOne({ email });
       
       if (user && !user.isVerified) {
         await User.deleteOne({ email });
 
-        // Send an email notifying the user that their data was deleted
+        
         await sendEmail({
           to: email,
           subject: "Signup Expired",

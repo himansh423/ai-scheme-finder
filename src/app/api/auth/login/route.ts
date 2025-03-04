@@ -33,13 +33,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const isAnswersPresent = Boolean(
-      existingUser.questions?.how_do_you_want_to_use_this_platform &&
-        existingUser.questions?.what_best_describes_you &&
-        existingUser.questions?.how_do_you_heard_about_us
-    );
-    const isProfilePictureUploaded = Boolean(existingUser.profilePicture);
-    const isBioAdded = Boolean(existingUser.bio);
+  
 
     const token = jwt.sign(
       {
@@ -47,9 +41,6 @@ export async function POST(req: Request) {
         firstName: existingUser.firstName,
         lastName: existingUser.lastName,
         email: existingUser.email,
-        isAnswersPresent,
-        isProfilePictureUploaded,
-        isBioAdded,
       },
       JWT_SECRET as string,
       { expiresIn: "7d" }

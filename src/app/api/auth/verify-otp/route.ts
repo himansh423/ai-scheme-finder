@@ -9,7 +9,6 @@ const JWT_SECRET = process.env.NEXT_PUBLIC_JWT_SECRET;
 export async function POST(req: Request) {
   try {
     await connectToDatabase();
-    console.log("Database connected successfully.");
   } catch (err) {
     console.error("Database connection failed:", err);
     return NextResponse.json(
@@ -43,9 +42,6 @@ export async function POST(req: Request) {
         firstName: user.firstName,
         lastName: user.lastName,
         email: user.email,
-        isAnswersPresent: false,
-        isProfilePictureUploaded: false,
-        isBioAdded: false,
       },
       JWT_SECRET as string,
       { expiresIn: "7d" }

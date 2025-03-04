@@ -55,7 +55,7 @@ const HomePage = () => {
     if (isListening) {
       startListening();
     }
-  }, []);
+  }, [isListening]);
 
   const startListening = () => {
     const SpeechRecognition =
