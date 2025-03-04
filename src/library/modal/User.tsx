@@ -29,6 +29,7 @@ const UserSchema = new Schema({
   isVerified: {
     type: Boolean,
   },
+  savedSchemes: [{ type: mongoose.Schema.Types.ObjectId, ref: "SavedSchemes" }],
 });
 
 const User = mongoose.models.Users || mongoose.model("Users", UserSchema);
