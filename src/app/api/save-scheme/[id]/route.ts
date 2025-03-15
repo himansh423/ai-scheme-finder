@@ -5,13 +5,13 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await connectToDatabase();
-    const { id: userId } = params;
+    const id = (await params).id;
     const payload = await req.json();
-    const user = await User.findById(userId);
+    const user = await User.findById(id);
     if (!user) {
       return NextResponse.json(
         {

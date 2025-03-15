@@ -5,13 +5,13 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await connectToDatabase();
-    const { id: userId } = params;
+    const id = (await params).id;
     const { schemeId } = await req.json();
-    const user = await User.findById(userId);
+    const user = await User.findById(id);
     if (!user) {
       return NextResponse.json(
         { success: false, message: "User not found" },
@@ -28,7 +28,7 @@ export async function DELETE(
     }
 
     await User.updateOne(
-      { _id: userId },
+      { _id: id },
       { $pull: { savedSchemes: schemeId } }
     );
 
