@@ -1,7 +1,3 @@
-"use client"
-import type { RootState } from "@/redux/store";
-import { useState } from "react";
-import { useSelector } from "react-redux";
 import {
   Star,
   Save,
@@ -12,6 +8,8 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Bebas_Neue } from "next/font/google";
+import axios from "axios";
+import { cookies } from "next/headers";
 
 const bebasNeue = Bebas_Neue({ weight: "400", subsets: ["latin"] });
 
@@ -22,10 +20,50 @@ interface Scheme {
   eligibility: string;
   reason: string;
 }
-const SavedScheme = () => {
-  const { schemes } = useSelector((store: RootState) => store.scheme);
-  const [comparisonList, setComparisonList] = useState<string[]>([]);
-  const [savedSchemes, setSavedSchemes] = useState<string[]>([]);
+
+const getSavedSchemes = async (userId: string) => {
+  try {
+    const res = await axios.get(
+      `http://localhost:3000/api/get-saved-schemes/${userId}`
+    );
+    if (res.data.success) {
+      return res.data.data;
+    }
+  } catch (error) {
+    console.log(error);
+    return [];
+  }
+};
+
+const fetchUserDataFromCookie = async () => {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("token")?.value;
+
+  if (token) {
+    try {
+      const response = await fetch(
+        "http://localhost:3000/api/auth/decode-token",
+        {
+          headers: { Cookie: `token=${token}` },
+        }
+      );
+
+      if (!response.ok) throw new Error("Failed to fetch user data");
+
+      const data = await response.json();
+      if (data?.user) {
+        return data.user;
+      }
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+    }
+  }
+};
+const SavedScheme = async () => {
+  const loggedInUser = await fetchUserDataFromCookie();
+  const schemes = await getSavedSchemes(loggedInUser.userId);
+  // const [comparisonList, setComparisonList] = useState<string[]>([]);
+  // const [savedSchemes, setSavedSchemes] = useState<string[]>([]);
   const renderTrustScore = (score: string) => {
     const stars = [];
     const trustScore = Number(score);
@@ -44,23 +82,26 @@ const SavedScheme = () => {
     return stars;
   };
 
-  const handleSaveScheme = (schemeName: string) => {
-    if (savedSchemes.includes(schemeName)) {
-      setSavedSchemes(savedSchemes.filter((name) => name !== schemeName));
-    } else {
-      setSavedSchemes([...savedSchemes, schemeName]);
-    }
-  };
+  // const handleSaveScheme = (schemeName: string) => {
+  //   if (savedSchemes.includes(schemeName)) {
+  //     setSavedSchemes(savedSchemes.filter((name) => name !== schemeName));
+  //   } else {
+  //     setSavedSchemes([...savedSchemes, schemeName]);
+  //   }
+  // };
 
-  const handleAddToComparison = (schemeName: string) => {
-    if (comparisonList.includes(schemeName)) {
-      setComparisonList(comparisonList.filter((name) => name !== schemeName));
-    } else {
-      setComparisonList([...comparisonList, schemeName]);
-    }
-  };
+  // const handleAddToComparison = (schemeName: string) => {
+  //   if (comparisonList.includes(schemeName)) {
+  //     setComparisonList(comparisonList.filter((name) => name !== schemeName));
+  //   } else {
+  //     setComparisonList([...comparisonList, schemeName]);
+  //   }
+  // };
   return (
-    <div>
+    <div className="w-screen min-h-screen px-7 py-11">
+      <div className="w-screen  mb-7">
+          <h1 className={`${bebasNeue.className} text-6xl text-center text-[#ffffff]`}>Saved Schemes</h1>
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
         {schemes?.map((scheme: Scheme, index: number) => (
           <div
@@ -127,13 +168,13 @@ const SavedScheme = () => {
 
               <div className="flex flex-wrap gap-2 mt-6">
                 <Button
-                  onClick={() => handleSaveScheme(scheme.name)}
-                  className={`bg-[#111111] hover:bg-[#222222] text-[#E5E5E5] border border-[#333333] ${
-                    savedSchemes.includes(scheme.name) ? "bg-[#222222]" : ""
-                  }`}
+                  // onClick={() => handleSaveScheme(scheme.name)}
+                  className={`bg-[#111111] hover:bg-[#222222] text-[#E5E5E5] border border-[#333333] 
+                   
+                  `}
                 >
                   <Save className="mr-2 h-4 w-4" />
-                  {savedSchemes.includes(scheme.name) ? "Saved" : "Save"}
+                  Saved
                 </Button>
 
                 <Button className="bg-[#111111] hover:bg-[#222222] text-[#E5E5E5] border border-[#333333]">
@@ -141,13 +182,11 @@ const SavedScheme = () => {
                 </Button>
 
                 <Button
-                  onClick={() => handleAddToComparison(scheme.name)}
-                  className={`bg-[#111111] hover:bg-[#222222] text-[#E5E5E5] border border-[#333333] ${
-                    comparisonList.includes(scheme.name) ? "bg-[#222222]" : ""
-                  }`}
+                  // onClick={() => handleAddToComparison(scheme.name)}
+                  className={`bg-[#111111] hover:bg-[#222222] text-[#E5E5E5] border border-[#333333] `}
                 >
                   <BarChart2 className="mr-2 h-4 w-4" />
-                  {comparisonList.includes(scheme.name) ? "Added" : "Compare"}
+                  added
                 </Button>
               </div>
             </div>
@@ -164,7 +203,7 @@ const SavedScheme = () => {
         ))}
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default SavedScheme
+export default SavedScheme;

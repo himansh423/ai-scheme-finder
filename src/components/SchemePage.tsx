@@ -1,8 +1,7 @@
 "use client";
-
-import type { RootState } from "@/redux/store";
-import { useState } from "react";
-import { useSelector } from "react-redux";
+import { store, type RootState } from "@/redux/store";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import {
   Star,
   Save,
@@ -13,6 +12,9 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Bebas_Neue } from "next/font/google";
+import { schemeAction } from "@/redux/schemeSlice";
+import axios from "axios";
+import { userAction } from "@/redux/userSlice";
 
 const bebasNeue = Bebas_Neue({ weight: "400", subsets: ["latin"] });
 
@@ -24,16 +26,67 @@ interface Scheme {
   reason: string;
 }
 const SchemePage = () => {
-  const { schemes } = useSelector((store: RootState) => store.scheme);
+  const { schemes, savedSchemes } = useSelector(
+    (store: RootState) => store.scheme
+  );
+  const { loggedInUser } = useSelector((store: RootState) => store.user);
   const { userInput } = useSelector((store: RootState) => store.userInput);
+  const dispatch = useDispatch();
   const [comparisonList, setComparisonList] = useState<string[]>([]);
-  const [savedSchemes, setSavedSchemes] = useState<string[]>([]);
 
-  const handleSaveScheme = (schemeName: string) => {
-    if (savedSchemes.includes(schemeName)) {
-      setSavedSchemes(savedSchemes.filter((name) => name !== schemeName));
+  useEffect(() => {
+    const fetchLoggedInUser = async () => {
+      try {
+        const res = await axios.get("/api/auth/decode-token");
+        if (res.data.success) {
+          dispatch(userAction.setLoggedInUser({ data: res.data.user }));
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    fetchLoggedInUser();
+  }, []);
+  const handleSaveScheme = async (scheme: Scheme) => {
+    if (savedSchemes.some((savedScheme) => savedScheme.name === scheme.name)) {
+      try {
+        const res = await axios.delete(
+          `/api/unsave-scheme/${loggedInUser?.userId}`,
+        );
+        if (res.data.success) {
+          dispatch(
+            schemeAction.setSavedSchemes({
+              data: savedSchemes.filter(
+                (savedScheme) => savedScheme.name !== scheme.name
+              ),
+            })
+          );
+        }
+      } catch (error) {
+        console.log(error);
+      }
     } else {
-      setSavedSchemes([...savedSchemes, schemeName]);
+      try {
+        const payload = {
+          name: scheme.name,
+          TrustScore: scheme.TrustScore,
+          category: scheme.category,
+          eligibility: scheme.eligibility,
+          reason: scheme.reason,
+        };
+        const res = await axios.patch(
+          `/api/save-scheme/${loggedInUser?.userId}`,
+           payload 
+        );
+        if (res.data.success) {
+          dispatch(
+            schemeAction.setSavedSchemes({ data: [...savedSchemes, scheme] })
+          );
+        }
+      } catch (error) {
+        console.log(error);
+      }
     }
   };
 
@@ -167,13 +220,21 @@ const SchemePage = () => {
 
               <div className="flex flex-wrap gap-2 mt-6">
                 <Button
-                  onClick={() => handleSaveScheme(scheme.name)}
+                  onClick={() => handleSaveScheme(scheme)}
                   className={`bg-[#111111] hover:bg-[#222222] text-[#E5E5E5] border border-[#333333] ${
-                    savedSchemes.includes(scheme.name) ? "bg-[#222222]" : ""
+                    savedSchemes.some(
+                      (savedScheme) => savedScheme.name === scheme.name
+                    )
+                      ? "bg-[#222222]"
+                      : ""
                   }`}
                 >
                   <Save className="mr-2 h-4 w-4" />
-                  {savedSchemes.includes(scheme.name) ? "Saved" : "Save"}
+                  {savedSchemes.some(
+                    (savedScheme) => savedScheme.name === scheme.name
+                  )
+                    ? "Saved"
+                    : "Save"}
                 </Button>
 
                 <Button className="bg-[#111111] hover:bg-[#222222] text-[#E5E5E5] border border-[#333333]">

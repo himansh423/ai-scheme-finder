@@ -8,11 +8,13 @@ interface Scheme {
   TrustScore: string;
 }
 interface SchemeState {
-  schemes: Scheme[];
+  schemes: Scheme[]; 
+  savedSchemes:Scheme[];
 }
 
 const initialState: SchemeState = {
   schemes: [],
+  savedSchemes:[],
 };
 const schemeSlice = createSlice({
   name: "scheme",
@@ -22,6 +24,11 @@ const schemeSlice = createSlice({
       const { data } = action.payload;
       state.schemes = data;
     },
+    setSavedSchemes:(state,action) => {
+      const {data} = action.payload;
+      state.savedSchemes = data;
+    
+    }
   },
 });
 
