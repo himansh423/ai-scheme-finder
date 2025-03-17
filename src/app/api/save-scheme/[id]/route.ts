@@ -2,7 +2,7 @@ import connectToDatabase from "@/library/database/db";
 import SavedSchemes from "@/library/modal/SavedScheme";
 import User from "@/library/modal/User";
 import { NextRequest, NextResponse } from "next/server";
-
+ 
 export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -28,6 +28,7 @@ export async function PATCH(
       eligibility: payload.eligibility,
       reason: payload.reason,
       TrustScore: payload.TrustScore,
+      schemeId:payload.schemeId,
     });
 
     const savedScheme = await saveScheme.save();

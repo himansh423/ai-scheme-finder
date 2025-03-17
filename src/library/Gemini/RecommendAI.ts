@@ -26,7 +26,7 @@ export async function getSchemeRecommendation(
   userData: UserData,
   schemes: Schemes[]
 ) {
-  console.log("Checking schemes:", schemes);
+
 
   const schemesList = schemes
     .map(
@@ -59,6 +59,7 @@ export async function getSchemeRecommendation(
         "eligibility": "Eligibility Criteria",
         "reason": "Why this scheme is suitable for the user.",
         "TrustScore": "Give Score based on Scheme in the scale of 1-5",
+        "schemeId": "Give 6 unique numeric and alphabetic value"
       }
     ]
   }

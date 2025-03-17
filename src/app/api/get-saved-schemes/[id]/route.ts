@@ -11,7 +11,7 @@ export async function GET(
     const id = (await params).id;
     const user = await User.findById(id).populate(
       "savedSchemes",
-      "name category eligibility reason TrustScore"
+      "name category eligibility reason TrustScore schemeId"
     );
 
     if (!user) {

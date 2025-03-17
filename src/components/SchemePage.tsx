@@ -24,6 +24,7 @@ interface Scheme {
   category: string;
   eligibility: string;
   reason: string;
+  schemeId: string;
 }
 const SchemePage = () => {
   const { schemes, savedSchemes } = useSelector(
@@ -51,8 +52,12 @@ const SchemePage = () => {
   const handleSaveScheme = async (scheme: Scheme) => {
     if (savedSchemes.some((savedScheme) => savedScheme.name === scheme.name)) {
       try {
+        const payload = {
+          schemeId: scheme.schemeId,
+        };
         const res = await axios.delete(
           `/api/unsave-scheme/${loggedInUser?.userId}`,
+          { data: payload }
         );
         if (res.data.success) {
           dispatch(
@@ -74,10 +79,11 @@ const SchemePage = () => {
           category: scheme.category,
           eligibility: scheme.eligibility,
           reason: scheme.reason,
+          schemeId:scheme.schemeId,
         };
         const res = await axios.patch(
           `/api/save-scheme/${loggedInUser?.userId}`,
-           payload 
+          payload
         );
         if (res.data.success) {
           dispatch(

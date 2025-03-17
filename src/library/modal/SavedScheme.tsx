@@ -22,6 +22,10 @@ const savedSchemeSchema = new Schema({
     type: String,
     required: true,
   },
+  schemeId: {
+    type: String,
+    required: true,
+  },
 });
 
 const SavedSchemes =

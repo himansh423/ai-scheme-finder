@@ -11,6 +11,9 @@ export async function DELETE(
     await connectToDatabase();
     const id = (await params).id;
     const { schemeId } = await req.json();
+    
+  
+
     const user = await User.findById(id);
     if (!user) {
       return NextResponse.json(
@@ -19,17 +22,26 @@ export async function DELETE(
       );
     }
 
-    const savedScheme = await SavedSchemes.findOneAndDelete({ _id: schemeId });
+    const savedScheme = await SavedSchemes.findOne({
+      schemeId: schemeId
+    });
+
     if (!savedScheme) {
+      console.log("No scheme found with schemeId:", schemeId);
       return NextResponse.json(
         { success: false, message: "Scheme not found" },
         { status: 404 }
       );
     }
 
+    console.log("Found scheme:", savedScheme);
+
+
+    await SavedSchemes.findByIdAndDelete(savedScheme._id);
+
     await User.updateOne(
       { _id: id },
-      { $pull: { savedSchemes: schemeId } }
+      { $pull: { savedSchemes: savedScheme._id } }
     );
 
     return NextResponse.json({

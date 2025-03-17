@@ -6,6 +6,7 @@ interface Scheme {
   eligibility: string;
   reason: string;
   TrustScore: string;
+  schemeId:string,
 }
 interface SchemeState {
   schemes: Scheme[]; 

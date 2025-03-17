@@ -34,6 +34,10 @@ const SchemeSchema = new Schema({
     type: String,
     required: true,
   },
+  schemeId:{
+    type:String,
+    required:true,
+  }
 });
 const Scheme = mongoose.models.Scheme || mongoose.model("Scheme", SchemeSchema);
 
