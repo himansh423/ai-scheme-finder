@@ -15,6 +15,7 @@ import { Bebas_Neue } from "next/font/google";
 import { schemeAction } from "@/redux/schemeSlice";
 import axios from "axios";
 import { userAction } from "@/redux/userSlice";
+import Link from "next/link";
 
 const bebasNeue = Bebas_Neue({ weight: "400", subsets: ["latin"] });
 
@@ -27,13 +28,12 @@ interface Scheme {
   schemeId: string;
 }
 const SchemePage = () => {
-  const { schemes, savedSchemes } = useSelector(
+  const { schemes, savedSchemes, comparisonList } = useSelector(
     (store: RootState) => store.scheme
   );
   const { loggedInUser } = useSelector((store: RootState) => store.user);
   const { userInput } = useSelector((store: RootState) => store.userInput);
   const dispatch = useDispatch();
-  const [comparisonList, setComparisonList] = useState<string[]>([]);
 
   useEffect(() => {
     const fetchLoggedInUser = async () => {
@@ -79,7 +79,7 @@ const SchemePage = () => {
           category: scheme.category,
           eligibility: scheme.eligibility,
           reason: scheme.reason,
-          schemeId:scheme.schemeId,
+          schemeId: scheme.schemeId,
         };
         const res = await axios.patch(
           `/api/save-scheme/${loggedInUser?.userId}`,
@@ -96,11 +96,21 @@ const SchemePage = () => {
     }
   };
 
-  const handleAddToComparison = (schemeName: string) => {
-    if (comparisonList.includes(schemeName)) {
-      setComparisonList(comparisonList.filter((name) => name !== schemeName));
+  const handleAddToComparison = (scheme: Scheme) => {
+    if (
+      comparisonList.some((compareScheme) => compareScheme.name === scheme.name)
+    ) {
+      dispatch(
+        schemeAction.setComparisonList({
+          data: comparisonList.filter(
+            (compareScheme) => compareScheme.name !== scheme.name
+          ),
+        })
+      );
     } else {
-      setComparisonList([...comparisonList, schemeName]);
+      dispatch(
+        schemeAction.setComparisonList({ data: [...comparisonList, scheme] })
+      );
     }
   };
 
@@ -248,13 +258,21 @@ const SchemePage = () => {
                 </Button>
 
                 <Button
-                  onClick={() => handleAddToComparison(scheme.name)}
+                  onClick={() => handleAddToComparison(scheme)}
                   className={`bg-[#111111] hover:bg-[#222222] text-[#E5E5E5] border border-[#333333] ${
-                    comparisonList.includes(scheme.name) ? "bg-[#222222]" : ""
+                    comparisonList.some(
+                      (compareScheme) => compareScheme.name === scheme.name
+                    )
+                      ? "bg-[#222222]"
+                      : ""
                   }`}
                 >
                   <BarChart2 className="mr-2 h-4 w-4" />
-                  {comparisonList.includes(scheme.name) ? "Added" : "Compare"}
+                  {comparisonList.some(
+                    (compareScheme) => compareScheme.name === scheme.name
+                  )
+                    ? "Added"
+                    : "Compare"}
                 </Button>
               </div>
             </div>
@@ -272,12 +290,12 @@ const SchemePage = () => {
       </div>
 
       {comparisonList.length > 0 && (
-        <div className="fixed bottom-6 right-6">
+        <Link href={"/compare"} className="fixed bottom-6 right-6">
           <Button className="bg-[#111111] hover:bg-[#222222] text-[#E5E5E5] border border-[#333333] shadow-lg">
             Compare ({comparisonList.length}){" "}
             <ChevronRight className="ml-2 h-4 w-4" />
           </Button>
-        </div>
+        </Link>
       )}
     </div>
   );

@@ -6,16 +6,27 @@ interface Scheme {
   eligibility: string;
   reason: string;
   TrustScore: string;
-  schemeId:string,
+  schemeId: string;
+}
+
+interface ComparisonList {
+  name: string;
+  category: string;
+  eligibility: string;
+  reason: string;
+  TrustScore: string;
+  schemeId: string;
 }
 interface SchemeState {
-  schemes: Scheme[]; 
-  savedSchemes:Scheme[];
+  schemes: Scheme[];
+  savedSchemes: Scheme[];
+  comparisonList: ComparisonList[];
 }
 
 const initialState: SchemeState = {
   schemes: [],
-  savedSchemes:[],
+  savedSchemes: [],
+  comparisonList: [],
 };
 const schemeSlice = createSlice({
   name: "scheme",
@@ -25,11 +36,14 @@ const schemeSlice = createSlice({
       const { data } = action.payload;
       state.schemes = data;
     },
-    setSavedSchemes:(state,action) => {
-      const {data} = action.payload;
+    setSavedSchemes: (state, action) => {
+      const { data } = action.payload;
       state.savedSchemes = data;
-    
-    }
+    },
+    setComparisonList: (state, action) => {
+      const { data } = action.payload;
+      state.comparisonList = data;
+    },
   },
 });
 
