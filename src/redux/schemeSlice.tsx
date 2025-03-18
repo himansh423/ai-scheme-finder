@@ -1,4 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
+import { boolean } from "zod";
 
 interface Scheme {
   name: string;
@@ -21,12 +22,14 @@ interface SchemeState {
   schemes: Scheme[];
   savedSchemes: Scheme[];
   comparisonList: ComparisonList[];
+  showModal: boolean;
 }
 
 const initialState: SchemeState = {
   schemes: [],
   savedSchemes: [],
   comparisonList: [],
+  showModal: false,
 };
 const schemeSlice = createSlice({
   name: "scheme",
@@ -43,6 +46,9 @@ const schemeSlice = createSlice({
     setComparisonList: (state, action) => {
       const { data } = action.payload;
       state.comparisonList = data;
+    },
+    setShowModal: (state) => {
+      state.showModal = !state.showModal;
     },
   },
 });

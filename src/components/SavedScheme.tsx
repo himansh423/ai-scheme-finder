@@ -1,3 +1,4 @@
+"use client";
 import {
   Star,
   Save,
@@ -9,7 +10,13 @@ import {
 import { Button } from "@/components/ui/button";
 import { Bebas_Neue } from "next/font/google";
 import axios from "axios";
-import { cookies } from "next/headers";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
+import { useEffect } from "react";
+import { userAction } from "@/redux/userSlice";
+import { schemeAction } from "@/redux/schemeSlice";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 const bebasNeue = Bebas_Neue({ weight: "400", subsets: ["latin"] });
 
@@ -19,51 +26,16 @@ interface Scheme {
   category: string;
   eligibility: string;
   reason: string;
+  schemeId: string;
 }
 
-const getSavedSchemes = async (userId: string) => {
-  try {
-    const res = await axios.get(
-      `http://localhost:3000/api/get-saved-schemes/${userId}`
-    );
-    if (res.data.success) {
-      return res.data.data;
-    }
-  } catch (error) {
-    console.log(error);
-    return [];
-  }
-};
-
-const fetchUserDataFromCookie = async () => {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("token")?.value;
-
-  if (token) {
-    try {
-      const response = await fetch(
-        "http://localhost:3000/api/auth/decode-token",
-        {
-          headers: { Cookie: `token=${token}` },
-        }
-      );
-
-      if (!response.ok) throw new Error("Failed to fetch user data");
-
-      const data = await response.json();
-      if (data?.user) {
-        return data.user;
-      }
-    } catch (error) {
-      console.error("Error fetching user data:", error);
-    }
-  }
-};
-const SavedScheme = async () => {
-  const loggedInUser = await fetchUserDataFromCookie();
-  const schemes = await getSavedSchemes(loggedInUser.userId);
-  // const [comparisonList, setComparisonList] = useState<string[]>([]);
-  // const [savedSchemes, setSavedSchemes] = useState<string[]>([]);
+const SavedScheme = () => {
+  const { comparisonList, schemes,showModal } = useSelector(
+    (store: RootState) => store.scheme
+  );
+  const { loggedInUser } = useSelector((store: RootState) => store.user);
+  const dispatch = useDispatch();
+  const router = useRouter();
   const renderTrustScore = (score: string) => {
     const stars = [];
     const trustScore = Number(score);
@@ -82,25 +54,119 @@ const SavedScheme = async () => {
     return stars;
   };
 
-  // const handleSaveScheme = (schemeName: string) => {
-  //   if (savedSchemes.includes(schemeName)) {
-  //     setSavedSchemes(savedSchemes.filter((name) => name !== schemeName));
-  //   } else {
-  //     setSavedSchemes([...savedSchemes, schemeName]);
-  //   }
-  // };
+  useEffect(() => {
+    const fetchLoggedInUser = async () => {
+      try {
+        const res = await axios.get("/api/auth/decode-token");
+        if (res.data.success) {
+          dispatch(userAction.setLoggedInUser({ data: res.data.user }));
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
 
-  // const handleAddToComparison = (schemeName: string) => {
-  //   if (comparisonList.includes(schemeName)) {
-  //     setComparisonList(comparisonList.filter((name) => name !== schemeName));
-  //   } else {
-  //     setComparisonList([...comparisonList, schemeName]);
-  //   }
-  // };
+    fetchLoggedInUser();
+  }, [dispatch]);
+
+  useEffect(() => {
+    const getSavedSchemes = async () => {
+      if (!loggedInUser?.userId) return;
+
+      try {
+        const res = await axios.get(
+          `/api/get-saved-schemes/${loggedInUser.userId}`
+        );
+        if (res.data.success) {
+          dispatch(schemeAction.setSchemes({ data: res.data.data }));
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    getSavedSchemes();
+  }, [loggedInUser, dispatch]);
+
+  const handleSaveScheme = async (scheme: Scheme) => {
+    if (schemes.some((savedScheme) => savedScheme.name === scheme.name)) {
+      try {
+        const payload = {
+          schemeId: scheme.schemeId,
+        };
+        const res = await axios.delete(
+          `/api/unsave-scheme/${loggedInUser?.userId}`,
+          { data: payload }
+        );
+        if (res.data.success) {
+          dispatch(
+            schemeAction.setSchemes({
+              data: schemes.filter(
+                (savedScheme) => savedScheme.schemeId !== scheme.schemeId
+              ),
+            })
+          );
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    } else {
+      try {
+        const payload = {
+          name: scheme.name,
+          TrustScore: scheme.TrustScore,
+          category: scheme.category,
+          eligibility: scheme.eligibility,
+          reason: scheme.reason,
+          schemeId: scheme.schemeId,
+        };
+        const res = await axios.patch(
+          `/api/save-scheme/${loggedInUser?.userId}`,
+          payload
+        );
+        if (res.data.success) {
+          dispatch(schemeAction.setSchemes({ data: [...schemes, scheme] }));
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  };
+
+  const handleAddToComparison = (scheme: Scheme) => {
+    if (
+      comparisonList.some((compareScheme) => compareScheme.name === scheme.name)
+    ) {
+      dispatch(
+        schemeAction.setComparisonList({
+          data: comparisonList.filter(
+            (compareScheme) => compareScheme.name !== scheme.name
+          ),
+        })
+      );
+    } else {
+      dispatch(
+        schemeAction.setComparisonList({ data: [...comparisonList, scheme] })
+      );
+    }
+  };
+
+  const handleCompareClick = () => {
+    if (comparisonList.length < 2) {
+      dispatch(schemeAction.setShowModal());
+    } else {
+      router.push("/compare");
+    }
+  };
+
   return (
     <div className="w-screen min-h-screen px-7 py-11">
       <div className="w-screen  mb-7">
-          <h1 className={`${bebasNeue.className} text-6xl text-center text-[#ffffff]`}>Saved Schemes</h1>
+        <h1
+          className={`${bebasNeue.className} text-6xl text-center text-[#ffffff]`}
+        >
+          Saved Schemes
+        </h1>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
         {schemes?.map((scheme: Scheme, index: number) => (
@@ -168,13 +234,21 @@ const SavedScheme = async () => {
 
               <div className="flex flex-wrap gap-2 mt-6">
                 <Button
-                  // onClick={() => handleSaveScheme(scheme.name)}
-                  className={`bg-[#111111] hover:bg-[#222222] text-[#E5E5E5] border border-[#333333] 
-                   
-                  `}
+                  onClick={() => handleSaveScheme(scheme)}
+                  className={`bg-[#111111] hover:bg-[#222222] text-[#E5E5E5] border border-[#333333] ${
+                    schemes.some(
+                      (savedScheme) => savedScheme.name === scheme.name
+                    )
+                      ? "bg-[#222222]"
+                      : ""
+                  }`}
                 >
                   <Save className="mr-2 h-4 w-4" />
-                  Saved
+                  {schemes.some(
+                    (savedScheme) => savedScheme.name === scheme.name
+                  )
+                    ? "Saved"
+                    : "Save"}
                 </Button>
 
                 <Button className="bg-[#111111] hover:bg-[#222222] text-[#E5E5E5] border border-[#333333]">
@@ -182,11 +256,21 @@ const SavedScheme = async () => {
                 </Button>
 
                 <Button
-                  // onClick={() => handleAddToComparison(scheme.name)}
-                  className={`bg-[#111111] hover:bg-[#222222] text-[#E5E5E5] border border-[#333333] `}
+                  onClick={() => handleAddToComparison(scheme)}
+                  className={`bg-[#111111] hover:bg-[#222222] text-[#E5E5E5] border border-[#333333] ${
+                    comparisonList.some(
+                      (compareScheme) => compareScheme.name === scheme.name
+                    )
+                      ? "bg-[#222222]"
+                      : ""
+                  }`}
                 >
                   <BarChart2 className="mr-2 h-4 w-4" />
-                  added
+                  {comparisonList.some(
+                    (compareScheme) => compareScheme.name === scheme.name
+                  )
+                    ? "Added"
+                    : "Compare"}
                 </Button>
               </div>
             </div>
@@ -202,6 +286,30 @@ const SavedScheme = async () => {
           </div>
         ))}
       </div>
+      {comparisonList.length > 0 && (
+        <div className="fixed bottom-6 right-6">
+          <Button
+            onClick={handleCompareClick}
+            className="bg-[#111111] hover:bg-[#222222] text-[#E5E5E5] border border-[#333333] shadow-lg"
+          >
+            Compare ({comparisonList.length}){" "}
+            <ChevronRight className="ml-2 h-4 w-4" />
+          </Button>
+        </div>
+      )}
+      {showModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-[#222222] p-6 rounded-lg shadow-lg text-center">
+            <p className="text-[#E5E5E5]">Add at least 2 schemes to compare.</p>
+            <Button
+              onClick={() => dispatch(schemeAction.setShowModal())}
+              className="mt-4 bg-[#111111] hover:bg-[#222222] text-[#E5E5E5] border border-[#333333]"
+            >
+              OK
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

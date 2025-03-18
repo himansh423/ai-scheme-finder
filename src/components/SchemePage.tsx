@@ -16,6 +16,7 @@ import { schemeAction } from "@/redux/schemeSlice";
 import axios from "axios";
 import { userAction } from "@/redux/userSlice";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 const bebasNeue = Bebas_Neue({ weight: "400", subsets: ["latin"] });
 
@@ -28,13 +29,13 @@ interface Scheme {
   schemeId: string;
 }
 const SchemePage = () => {
-  const { schemes, savedSchemes, comparisonList } = useSelector(
+  const { schemes, savedSchemes, comparisonList, showModal } = useSelector(
     (store: RootState) => store.scheme
   );
   const { loggedInUser } = useSelector((store: RootState) => store.user);
   const { userInput } = useSelector((store: RootState) => store.userInput);
   const dispatch = useDispatch();
-
+  const router = useRouter();
   useEffect(() => {
     const fetchLoggedInUser = async () => {
       try {
@@ -130,6 +131,14 @@ const SchemePage = () => {
       );
     }
     return stars;
+  };
+
+  const handleCompareClick = () => {
+    if (comparisonList.length < 2) {
+      dispatch(schemeAction.setShowModal());
+    } else {
+      router.push("/compare");
+    }
   };
 
   return (
@@ -290,12 +299,28 @@ const SchemePage = () => {
       </div>
 
       {comparisonList.length > 0 && (
-        <Link href={"/compare"} className="fixed bottom-6 right-6">
-          <Button className="bg-[#111111] hover:bg-[#222222] text-[#E5E5E5] border border-[#333333] shadow-lg">
+        <div  className="fixed bottom-6 right-6">
+          <Button
+            onClick={handleCompareClick}
+            className="bg-[#111111] hover:bg-[#222222] text-[#E5E5E5] border border-[#333333] shadow-lg"
+          >
             Compare ({comparisonList.length}){" "}
             <ChevronRight className="ml-2 h-4 w-4" />
           </Button>
-        </Link>
+        </div>
+      )}
+      {showModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-[#222222] p-6 rounded-lg shadow-lg text-center">
+            <p className="text-[#E5E5E5]">Add at least 2 schemes to compare.</p>
+            <Button
+              onClick={() => dispatch(schemeAction.setShowModal())}
+              className="mt-4 bg-[#111111] hover:bg-[#222222] text-[#E5E5E5] border border-[#333333]"
+            >
+              OK
+            </Button>
+          </div>
+        </div>
       )}
     </div>
   );
