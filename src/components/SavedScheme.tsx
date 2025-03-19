@@ -30,7 +30,7 @@ interface Scheme {
 }
 
 const SavedScheme = () => {
-  const { comparisonList, schemes,showModal } = useSelector(
+  const { comparisonList, schemes, showModal } = useSelector(
     (store: RootState) => store.scheme
   );
   const { loggedInUser } = useSelector((store: RootState) => store.user);

@@ -1,5 +1,4 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { boolean } from "zod";
 
 interface Scheme {
   name: string;
@@ -18,11 +17,19 @@ interface ComparisonList {
   TrustScore: string;
   schemeId: string;
 }
+interface ChatMessage {
+  role: "user" | "assistant";
+  content: string;
+}
 interface SchemeState {
   schemes: Scheme[];
   savedSchemes: Scheme[];
   comparisonList: ComparisonList[];
   showModal: boolean;
+  chatOpen: boolean;
+  selectedScheme: Scheme | null;
+  chatMessages: ChatMessage[];
+  userMessage:string;
 }
 
 const initialState: SchemeState = {
@@ -30,6 +37,10 @@ const initialState: SchemeState = {
   savedSchemes: [],
   comparisonList: [],
   showModal: false,
+  chatOpen: false,
+  selectedScheme: null,
+  chatMessages: [],
+  userMessage:"",
 };
 const schemeSlice = createSlice({
   name: "scheme",
@@ -50,6 +61,21 @@ const schemeSlice = createSlice({
     setShowModal: (state) => {
       state.showModal = !state.showModal;
     },
+    setChatOpen: (state) => {
+      state.chatOpen = !state.chatOpen;
+    },
+    setSelectedScheme: (state, action) => {
+      const { data } = action.payload;
+      state.selectedScheme = data;
+    },
+    setChatMessages: (state, action) => {
+      const { data } = action.payload;
+      state.chatMessages = data;
+    },
+    setUserMessage:(state,action) => {
+      const {data} = action.payload;
+      state.userMessage = data;
+    }
   },
 });
 
