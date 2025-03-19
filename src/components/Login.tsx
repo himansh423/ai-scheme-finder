@@ -2,7 +2,6 @@
 
 import type React from "react"
 import { Bebas_Neue } from "next/font/google"
-import { FaFacebook, FaGithub, FaGoogle } from "react-icons/fa"
 import Link from "next/link"
 import type { z } from "zod"
 import { type SubmitHandler, useForm } from "react-hook-form"

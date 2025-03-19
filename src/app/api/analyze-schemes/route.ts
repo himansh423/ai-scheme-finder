@@ -4,7 +4,13 @@ import { type NextRequest, NextResponse } from "next/server";
 const genAI = new GoogleGenerativeAI(
   process.env.NEXT_PUBLIC_GEMINI_API_KEY || ""
 );
-
+interface SchemeDetails {
+  name: string;
+  category: string;
+  eligibility: string;
+  TrustScore: string;
+  reason?: string;
+}
 export async function POST(request: NextRequest) {
   try {
     const { schemes, userProfile } = await request.json();
@@ -19,7 +25,7 @@ export async function POST(request: NextRequest) {
     const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
     const schemesData = schemes
-      .map((scheme: any) => {
+      .map((scheme: SchemeDetails) => {
         return `
 Scheme Name: ${scheme.name}
 Trust Score: ${scheme.TrustScore}
@@ -89,6 +95,7 @@ Ensure that:
       try {
         parsedResponse = JSON.parse(jsonMatch[1] || jsonMatch[0]);
       } catch (e) {
+        console.log(e)
         const cleanedJson = (jsonMatch[1] || jsonMatch[0])
           .replace(/[\u201C\u201D]/g, '"')
           .replace(/'/g, '"');
@@ -98,6 +105,7 @@ Ensure that:
       try {
         parsedResponse = JSON.parse(text);
       } catch (e) {
+        console.log(e)
         return NextResponse.json(
           { error: "Failed to parse AI response", rawResponse: text },
           { status: 500 }

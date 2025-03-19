@@ -5,9 +5,37 @@ const genAI = new GoogleGenerativeAI(
   process.env.NEXT_PUBLIC_GEMINI_API_KEY || ""
 );
 
+interface ChatMessage {
+  role: "user" | "assistant";
+  content: string;
+}
+
+interface SchemeDetails {
+  name: string;
+  category: string;
+  eligibility: string;
+  TrustScore: number;
+  reason?: string;
+}
+
+interface UserProfile {
+  age: number;
+  salary: number;
+  occupation: string;
+  location: string;
+}
+
+interface RequestBody {
+  message: string;
+  scheme: SchemeDetails;
+  userProfile: UserProfile;
+  chatHistory: ChatMessage[];
+}
+
 export async function POST(req: Request) {
   try {
-    const { message, scheme, userProfile, chatHistory } = await req.json();
+    const { message, scheme, userProfile, chatHistory }: RequestBody =
+      await req.json();
 
     if (!message || !scheme) {
       return NextResponse.json(
@@ -16,7 +44,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const formattedHistory = chatHistory.map((msg: any) => ({
+    const formattedHistory = chatHistory.map((msg) => ({
       role: msg.role === "assistant" ? "model" : "user",
       parts: [{ text: msg.content }],
     }));

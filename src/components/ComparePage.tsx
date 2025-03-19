@@ -19,7 +19,7 @@ import { Bebas_Neue } from "next/font/google";
 import { schemeAction } from "@/redux/schemeSlice";
 import Link from "next/link";
 import { Separator } from "@/components/ui/separator";
-import { toast } from "@/hooks/use-toast";
+
 import axios from "axios";
 import { ScrollArea } from "@radix-ui/react-scroll-area";
 import { Input } from "./ui/input";
@@ -103,19 +103,8 @@ const ComparePage = () => {
       });
 
       setComparisonResult(response.data);
-      toast({
-        title: "Analysis Complete",
-        description: `${response.data.bestScheme} is recommended as the best scheme for you.`,
-      });
     } catch (error) {
       console.error("Error analyzing schemes:", error);
-      toast({
-        title: "Analysis Failed",
-        description:
-          (error as any)?.response?.data?.error ||
-          "Failed to analyze schemes. Please try again.",
-        variant: "destructive",
-      });
     } finally {
       setIsAnalyzing(false);
     }

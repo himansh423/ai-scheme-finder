@@ -1,7 +1,6 @@
 "use client"
 import type React from "react"
 import { Bebas_Neue } from "next/font/google"
-import { FaFacebook, FaGithub, FaGoogle } from "react-icons/fa"
 import { useForm, type SubmitHandler } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import type { z } from "zod"

@@ -235,131 +235,154 @@ const SavedScheme = () => {
 
   return (
     <div className="w-screen min-h-screen px-7 py-11">
-      <div className="w-screen  mb-7">
+      <div className="w-screen mb-7">
         <h1
           className={`${bebasNeue.className} text-6xl text-center text-[#ffffff]`}
         >
           Saved Schemes
         </h1>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-        {schemes?.map((scheme: Scheme, index: number) => (
-          <div
-            key={index}
-            className="bg-[#0A0A0A] rounded-xl overflow-hidden border border-[#222222] shadow-xl h-full flex flex-col"
+      
+      {/* Show message when no schemes are saved */}
+      {(!schemes || schemes.length === 0) ? (
+        <div className="flex flex-col items-center justify-center bg-[#0A0A0A] rounded-xl border border-[#222222] p-10 mt-10">
+          <div className="bg-[#111111] p-4 rounded-full mb-4">
+            <Save className="h-10 w-10 text-[#999999]" />
+          </div>
+          <h2 className={`${bebasNeue.className} text-2xl text-[#E5E5E5] mb-2`}>
+            No Schemes Saved
+          </h2>
+          <p className="text-[#999999] text-center max-w-md mb-6">
+            You haven&apos;t saved any schemes yet. Browse available schemes and save them to view them here.
+          </p>
+          <Button 
+            onClick={() => router.push("/")}
+            className="bg-[#222222] hover:bg-[#333333] text-[#E5E5E5]"
           >
-            <div className="bg-[#111111] p-4 border-b border-[#222222]">
-              <div className="flex justify-between items-start">
-                <h2
-                  className={`text-xl text-[#E5E5E5] ${bebasNeue.className} h-14 flex items-center`}
-                >
-                  {scheme.name}
-                </h2>
-                <div className="flex">
-                  {renderTrustScore(scheme.TrustScore || "4")}
-                </div>
-              </div>
-            </div>
-
-            <div className="p-5 space-y-4 flex-grow flex flex-col">
-              <div className="flex items-start gap-3">
-                <div className="bg-[#111111] p-2 rounded-full min-w-[36px] flex items-center justify-center">
-                  <BarChart2 className="h-5 w-5 text-[#999999]" />
-                </div>
-                <div>
-                  <p
-                    className={`text-[#999999] text-sm ${bebasNeue.className}`}
+            Browse Schemes <ChevronRight className="ml-2 h-4 w-4" />
+          </Button>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+          {schemes.map((scheme: Scheme, index: number) => (
+            <div
+              key={index}
+              className="bg-[#0A0A0A] rounded-xl overflow-hidden border border-[#222222] shadow-xl h-full flex flex-col"
+            >
+              <div className="bg-[#111111] p-4 border-b border-[#222222]">
+                <div className="flex justify-between items-start">
+                  <h2
+                    className={`text-xl text-[#E5E5E5] ${bebasNeue.className} h-14 flex items-center`}
                   >
-                    CATEGORY
-                  </p>
-                  <p className="text-[#E5E5E5] font-medium h-6 flex items-center">
-                    {scheme.category}
-                  </p>
+                    {scheme.name}
+                  </h2>
+                  <div className="flex">
+                    {renderTrustScore(scheme.TrustScore || "4")}
+                  </div>
                 </div>
               </div>
 
-              <div className="flex items-start gap-3">
-                <div className="bg-[#111111] p-2 rounded-full min-w-[36px] flex items-center justify-center">
-                  <Check className="h-5 w-5 text-[#999999]" />
+              <div className="p-5 space-y-4 flex-grow flex flex-col">
+                <div className="flex items-start gap-3">
+                  <div className="bg-[#111111] p-2 rounded-full min-w-[36px] flex items-center justify-center">
+                    <BarChart2 className="h-5 w-5 text-[#999999]" />
+                  </div>
+                  <div>
+                    <p
+                      className={`text-[#999999] text-sm ${bebasNeue.className}`}
+                    >
+                      CATEGORY
+                    </p>
+                    <p className="text-[#E5E5E5] font-medium h-6 flex items-center">
+                      {scheme.category}
+                    </p>
+                  </div>
                 </div>
-                <div>
+
+                <div className="flex items-start gap-3">
+                  <div className="bg-[#111111] p-2 rounded-full min-w-[36px] flex items-center justify-center">
+                    <Check className="h-5 w-5 text-[#999999]" />
+                  </div>
+                  <div>
+                    <p
+                      className={`text-[#999999] text-sm ${bebasNeue.className}`}
+                    >
+                      ELIGIBILITY
+                    </p>
+                    <p className="text-[#E5E5E5] font-medium min-h-6">
+                      {scheme.eligibility}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="bg-[#111111] rounded-lg p-4 mt-4 flex-grow">
                   <p
-                    className={`text-[#999999] text-sm ${bebasNeue.className}`}
+                    className={`text-[#999999] text-sm mb-2 ${bebasNeue.className}`}
                   >
-                    ELIGIBILITY
+                    WHY RECOMMENDED
                   </p>
-                  <p className="text-[#E5E5E5] font-medium min-h-6">
-                    {scheme.eligibility}
+                  <p className="text-[#E5E5E5] text-sm min-h-[80px]">
+                    {scheme.reason ||
+                      "This scheme aligns perfectly with your profile and financial goals."}
                   </p>
                 </div>
-              </div>
 
-              <div className="bg-[#111111] rounded-lg p-4 mt-4 flex-grow">
-                <p
-                  className={`text-[#999999] text-sm mb-2 ${bebasNeue.className}`}
-                >
-                  WHY RECOMMENDED
-                </p>
-                <p className="text-[#E5E5E5] text-sm min-h-[80px]">
-                  {scheme.reason ||
-                    "This scheme aligns perfectly with your profile and financial goals."}
-                </p>
-              </div>
-
-              <div className="flex flex-wrap gap-2 mt-6">
-                <Button
-                  onClick={() => handleSaveScheme(scheme)}
-                  className={`bg-[#111111] hover:bg-[#222222] text-[#E5E5E5] border border-[#333333] ${
-                    schemes.some(
+                <div className="flex flex-wrap gap-2 mt-6">
+                  <Button
+                    onClick={() => handleSaveScheme(scheme)}
+                    className={`bg-[#111111] hover:bg-[#222222] text-[#E5E5E5] border border-[#333333] ${
+                      schemes.some(
+                        (savedScheme) => savedScheme.name === scheme.name
+                      )
+                        ? "bg-[#222222]"
+                        : ""
+                    }`}
+                  >
+                    <Save className="mr-2 h-4 w-4" />
+                    {schemes.some(
                       (savedScheme) => savedScheme.name === scheme.name
                     )
-                      ? "bg-[#222222]"
-                      : ""
-                  }`}
-                >
-                  <Save className="mr-2 h-4 w-4" />
-                  {schemes.some(
-                    (savedScheme) => savedScheme.name === scheme.name
-                  )
-                    ? "Saved"
-                    : "Save"}
-                </Button>
+                      ? "Saved"
+                      : "Save"}
+                  </Button>
 
-                <Button  onClick={() => openAIChat(scheme)} className="bg-[#111111] hover:bg-[#222222] text-[#E5E5E5] border border-[#333333]">
-                  <MessageSquare className="mr-2 h-4 w-4" /> ASK AI
-                </Button>
+                  <Button onClick={() => openAIChat(scheme)} className="bg-[#111111] hover:bg-[#222222] text-[#E5E5E5] border border-[#333333]">
+                    <MessageSquare className="mr-2 h-4 w-4" /> ASK AI
+                  </Button>
 
-                <Button
-                  onClick={() => handleAddToComparison(scheme)}
-                  className={`bg-[#111111] hover:bg-[#222222] text-[#E5E5E5] border border-[#333333] ${
-                    comparisonList.some(
+                  <Button
+                    onClick={() => handleAddToComparison(scheme)}
+                    className={`bg-[#111111] hover:bg-[#222222] text-[#E5E5E5] border border-[#333333] ${
+                      comparisonList.some(
+                        (compareScheme) => compareScheme.name === scheme.name
+                      )
+                        ? "bg-[#222222]"
+                        : ""
+                    }`}
+                  >
+                    <BarChart2 className="mr-2 h-4 w-4" />
+                    {comparisonList.some(
                       (compareScheme) => compareScheme.name === scheme.name
                     )
-                      ? "bg-[#222222]"
-                      : ""
-                  }`}
+                      ? "Added"
+                      : "Compare"}
+                  </Button>
+                </div>
+              </div>
+
+              <div className="bg-[#111111] p-3 border-t border-[#222222] mt-auto">
+                <Button
+                  variant="link"
+                  className="text-[#999999] hover:text-[#E5E5E5] p-0 h-auto flex items-center"
                 >
-                  <BarChart2 className="mr-2 h-4 w-4" />
-                  {comparisonList.some(
-                    (compareScheme) => compareScheme.name === scheme.name
-                  )
-                    ? "Added"
-                    : "Compare"}
+                  View Details <ChevronRight className="h-4 w-4 ml-1" />
                 </Button>
               </div>
             </div>
+          ))}
+        </div>
+      )}
 
-            <div className="bg-[#111111] p-3 border-t border-[#222222] mt-auto">
-              <Button
-                variant="link"
-                className="text-[#999999] hover:text-[#E5E5E5] p-0 h-auto flex items-center"
-              >
-                View Details <ChevronRight className="h-4 w-4 ml-1" />
-              </Button>
-            </div>
-          </div>
-        ))}
-      </div>
       {comparisonList.length > 0 && (
         <div className="fixed bottom-6 right-6">
           <Button
