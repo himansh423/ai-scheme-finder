@@ -11,6 +11,8 @@ import {
   Sparkles,
   Loader2,
   Trophy,
+  Send,
+  X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Bebas_Neue } from "next/font/google";
@@ -19,6 +21,8 @@ import Link from "next/link";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "@/hooks/use-toast";
 import axios from "axios";
+import { ScrollArea } from "@radix-ui/react-scroll-area";
+import { Input } from "./ui/input";
 
 const bebasNeue = Bebas_Neue({ weight: "400", subsets: ["latin"] });
 
@@ -44,6 +48,11 @@ interface ComparisonResult {
   detailedAnalysis: string;
 }
 
+
+interface ChatMessage {
+  role: "user" | "assistant"
+  content: string
+}
 const ComparePage = () => {
   const { comparisonList } = useSelector((store: RootState) => store.scheme);
   const { userInput } = useSelector((store: RootState) => store.userInput);
@@ -51,6 +60,12 @@ const ComparePage = () => {
   const [isAnalyzing, setIsAnalyzing] = useState<boolean>(false);
   const [comparisonResult, setComparisonResult] =
     useState<ComparisonResult | null>(null);
+
+  const [chatOpen, setChatOpen] = useState(false);
+  const [selectedScheme, setSelectedScheme] = useState<Scheme | null>(null);
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+  const [userMessage, setUserMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleRemoveFromComparison = (scheme: Scheme) => {
     dispatch(
@@ -107,6 +122,65 @@ const ComparePage = () => {
     }
   };
 
+  const openAIChat = (scheme: Scheme) => {
+    setSelectedScheme(scheme);
+
+    setChatMessages([
+      {
+        role: "user",
+        content: `Tell me about the ${scheme.name} scheme.`,
+      },
+      {
+        role: "assistant",
+        content: `Hello! I'm here to help you with any questions about the ${scheme.name} scheme. How can I assist you today?`,
+      },
+    ]);
+    setChatOpen(true);
+  };
+
+  const closeAIChat = () => {
+    setChatOpen(false);
+    setSelectedScheme(null);
+    setChatMessages([]);
+    setUserMessage("");
+  };
+
+  const handleSendMessage = async () => {
+    if (!userMessage.trim() || !selectedScheme) return;
+
+    const newUserMessage = { role: "user" as const, content: userMessage };
+    setChatMessages((prev) => [...prev, newUserMessage]);
+    setUserMessage("");
+    setIsLoading(true);
+
+    try {
+      const response = await axios.post("/api/ai-chat", {
+        message: userMessage,
+        scheme: selectedScheme,
+        userProfile: userInput,
+        chatHistory: chatMessages,
+      });
+
+      if (response.data.content) {
+        setChatMessages((prev) => [
+          ...prev,
+          { role: "assistant", content: response.data.content },
+        ]);
+      }
+    } catch (error) {
+      console.error("Error getting AI response:", error);
+      setChatMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          content:
+            "Sorry, I encountered an error processing your request. Please try again.",
+        },
+      ]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
   return (
     <div className="min-h-screen bg-black text-[#E5E5E5] p-6">
       <div className="flex items-center mb-8">
@@ -298,7 +372,10 @@ const ComparePage = () => {
                       Remove
                     </Button>
 
-                    <Button className="bg-[#111111] hover:bg-[#222222] text-[#E5E5E5] border border-[#333333]">
+                    <Button
+                      onClick={() => openAIChat(scheme)}
+                      className="bg-[#111111] hover:bg-[#222222] text-[#E5E5E5] border border-[#333333]"
+                    >
                       <MessageSquare className="mr-2 h-4 w-4" /> ASK AI
                     </Button>
                   </div>
@@ -350,6 +427,117 @@ const ComparePage = () => {
             </div>
           )}
         </>
+      )}
+      {chatOpen && selectedScheme && (
+        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
+          <div className="bg-[#111111] rounded-xl border border-[#333333] shadow-2xl w-full max-w-3xl max-h-[80vh] flex flex-col">
+            <div className="bg-[#0A0A0A] p-4 border-b border-[#222222] flex justify-between items-center">
+              <h3 className={`text-xl text-[#E5E5E5] ${bebasNeue.className}`}>
+                {selectedScheme.name} - AI Assistant
+              </h3>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={closeAIChat}
+                className="text-[#999999] hover:text-[#E5E5E5] hover:bg-[#222222]"
+              >
+                <X className="h-5 w-5" />
+              </Button>
+            </div>
+
+            {/* Scheme Details */}
+            <div className="bg-[#0A0A0A] p-4 border-b border-[#222222]">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                <div>
+                  <p className={`text-[#999999] ${bebasNeue.className}`}>
+                    CATEGORY
+                  </p>
+                  <p className="text-[#E5E5E5]">{selectedScheme.category}</p>
+                </div>
+                <div>
+                  <p className={`text-[#999999] ${bebasNeue.className}`}>
+                    ELIGIBILITY
+                  </p>
+                  <p className="text-[#E5E5E5]">{selectedScheme.eligibility}</p>
+                </div>
+                <div>
+                  <p className={`text-[#999999] ${bebasNeue.className}`}>
+                    TRUST SCORE
+                  </p>
+                  <div className="flex">
+                    {renderTrustScore(selectedScheme.TrustScore || "4")}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Chat Messages */}
+            <ScrollArea className="flex-grow p-4 overflow-y-auto">
+              <div className="space-y-4">
+                {chatMessages.map((message, index) => (
+                  <div
+                    key={index}
+                    className={`flex ${
+                      message.role === "user" ? "justify-end" : "justify-start"
+                    }`}
+                  >
+                    <div
+                      className={`max-w-[80%] p-3 rounded-lg ${
+                        message.role === "user"
+                          ? "bg-[#222222] text-[#E5E5E5]"
+                          : "bg-[#0A0A0A] text-[#E5E5E5] border border-[#222222]"
+                      }`}
+                    >
+                      {message.content}
+                    </div>
+                  </div>
+                ))}
+                {isLoading && (
+                  <div className="flex justify-start">
+                    <div className="max-w-[80%] p-3 rounded-lg bg-[#0A0A0A] text-[#E5E5E5] border border-[#222222]">
+                      <div className="flex space-x-2">
+                        <div className="w-2 h-2 bg-[#555555] rounded-full animate-bounce"></div>
+                        <div
+                          className="w-2 h-2 bg-[#555555] rounded-full animate-bounce"
+                          style={{ animationDelay: "0.2s" }}
+                        ></div>
+                        <div
+                          className="w-2 h-2 bg-[#555555] rounded-full animate-bounce"
+                          style={{ animationDelay: "0.4s" }}
+                        ></div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </ScrollArea>
+
+            {/* Chat Input */}
+            <div className="p-4 border-t border-[#222222]">
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  handleSendMessage();
+                }}
+                className="flex gap-2"
+              >
+                <Input
+                  value={userMessage}
+                  onChange={(e) => setUserMessage(e.target.value)}
+                  placeholder="Ask a question about this scheme..."
+                  className="flex-grow bg-[#0A0A0A] border-[#333333] text-[#E5E5E5]"
+                />
+                <Button
+                  type="submit"
+                  disabled={isLoading || !userMessage.trim()}
+                  className="bg-[#222222] hover:bg-[#333333] text-[#E5E5E5]"
+                >
+                  <Send className="h-4 w-4" />
+                </Button>
+              </form>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
