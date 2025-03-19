@@ -120,28 +120,7 @@ const Login: React.FC = () => {
             </div>
           </form>
 
-          <div className="w-full flex items-center gap-3 my-6">
-            <div className="h-[1px] flex-1 bg-[#333333]"></div>
-            <div className={`${bebasNeue.className} text-[#999999]`}>OR</div>
-            <div className="h-[1px] flex-1 bg-[#333333]"></div>
-          </div>
-
-          <div className="w-full space-y-3">
-            <button className="w-full h-12 bg-[#111111] text-[#E5E5E5] border border-[#333333] flex gap-3 items-center justify-center rounded-md hover:bg-[#222222] transition-all duration-300">
-              <FaGoogle className="text-[#E5E5E5]" />
-              <span className={bebasNeue.className}>LOGIN WITH GOOGLE</span>
-            </button>
-
-            <button className="w-full h-12 bg-[#111111] text-[#E5E5E5] border border-[#333333] flex gap-3 items-center justify-center rounded-md hover:bg-[#222222] transition-all duration-300">
-              <FaFacebook className="text-[#E5E5E5]" />
-              <span className={bebasNeue.className}>LOGIN WITH FACEBOOK</span>
-            </button>
-
-            <button className="w-full h-12 bg-[#111111] text-[#E5E5E5] border border-[#333333] flex gap-3 items-center justify-center rounded-md hover:bg-[#222222] transition-all duration-300">
-              <FaGithub className="text-[#E5E5E5]" />
-              <span className={bebasNeue.className}>LOGIN WITH GITHUB</span>
-            </button>
-          </div>
+        
         </div>
       </div>
     </div>

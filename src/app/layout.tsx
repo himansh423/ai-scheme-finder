@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import { Providers } from "@/redux/Provider";
+import ShowNav from "@/components/ShowNav";
+import ShowFooter from "@/components/ShowFooter";
 
 export const metadata: Metadata = {
   title: "Schematic AI",
@@ -18,9 +18,9 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <Providers>
-          <Navbar />
+          <ShowNav />
           {children}
-          <Footer />
+          <ShowFooter />
         </Providers>
       </body>
     </html>

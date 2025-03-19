@@ -48,10 +48,9 @@ interface ComparisonResult {
   detailedAnalysis: string;
 }
 
-
 interface ChatMessage {
-  role: "user" | "assistant"
-  content: string
+  role: "user" | "assistant";
+  content: string;
 }
 const ComparePage = () => {
   const { comparisonList } = useSelector((store: RootState) => store.scheme);
