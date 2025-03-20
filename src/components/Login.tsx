@@ -61,8 +61,8 @@ const Login: React.FC = () => {
     <div className="min-h-screen bg-black text-[#E5E5E5] flex justify-center items-center p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className={`${bebasNeue.className} text-5xl text-[#E5E5E5]`}>BRANDNAME</h1>
-          <p className="text-[#999999] mt-2">Grow Your Network efficiently</p>
+          <h1 className={`${bebasNeue.className} text-5xl text-[#E5E5E5]`}>Schematic-AI</h1>
+          <p className="text-[#999999] mt-2">AI Powered Scheme Finder</p>
         </div>
 
         <div className="bg-[#0A0A0A] rounded-xl border border-[#222222] shadow-xl p-8">
