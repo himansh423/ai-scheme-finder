@@ -1,36 +1,59 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Schematic-AI
 
-## Getting Started
+Schematic-AI is an AI-powered government scheme finder that helps users discover the best schemes based on their occupation, salary, age, location, and description. The AI intelligently suggests the most suitable schemes using advanced algorithms and also supports multiple languages. Additionally, it features voice recognition to assist illiterate users in finding schemes through speech input.
 
-First, run the development server:
+## Live Demo
+[Explore Schematic-AI](https://ai-scheme-finder-seven.vercel.app)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Features
+- **AI-Powered Scheme Recommendation**: Get the best government schemes based on user input.
+- **Multi-Language Support**: Accessible for users in different languages.
+- **Voice Recognition**: Enables illiterate users to interact with the system using speech.
+- **Scheme Saving**: Users can save their preferred schemes.
+- **Scheme Comparison**: Compare two or more schemes using AI to get the best results.
+- **3D Models**: Uses Spline for an interactive user experience.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Tech Stack
+- **Frontend**: Next.js (TypeScript), TailwindCSS, Shadcn UI
+- **State Management**: Redux
+- **Backend**: Mongoose (MongoDB)
+- **AI Integration**: Gemini-2.0-Flash API
+- **State Management & API Calls**: Axios
+- **Animations**: Framer Motion
+- **Icons**: Lucide React
+- **Form Handling & Validation**: React Hook Form, Zod
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Installation & Setup
+### Prerequisites
+- Node.js installed
+- MongoDB set up
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Steps to Run Locally
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/himansh423/ai-scheme-finder.git
+   ```
+2. **Navigate to the project directory:**
+   ```bash
+   cd ai-scheme-finder
+   ```
+3. **Install dependencies:**
+   ```bash
+   npm install
+   ```
+4. **Set up environment variables:**
+   - Create a `.env` file in the root directory.
+   - Add necessary API keys and database credentials.
+5. **Run the development server:**
+   ```bash
+   npm run dev
+   ```
 
-## Learn More
+## Contribution
+Contributions are welcome! Feel free to fork the repository and submit pull requests.
 
-To learn more about Next.js, take a look at the following resources:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Developed by Himanshu Chauhan 🚀
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
